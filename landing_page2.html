@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon Studios | Modern Grid</title>
+    
+    <!-- Google Fonts: Space Grotesk & Space Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            /* Swiss / Neo-Brutalist Palette */
+            --bg-body: #0a0a0a; /* Inverted for high-tech feel (Dark Mode base) */
+            --bg-secondary: #121212;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --text-inverse: #000000;
+            
+            --primary: #ff3300; /* International Orange - Hyper Vibrant */
+            --border-color: #333333;
+            
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Space Mono', monospace;
+            
+            --border-width: 1px;
+            --easing: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* Hide default cursor for custom one */
+        }
+
+        body {
+            font-family: var(--font-display);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+
+        /* --- CUSTOM CURSOR --- */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--text-muted);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        /* Cursor Hover State */
+        body.hovering .cursor-outline {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* --- UTILITIES --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+        }
+
+        .border-bottom { border-bottom: var(--border-width) solid var(--border-color); }
+
+        .btn {
+            display: inline-block;
+            padding: 1.25rem 2.5rem;
+            font-family: var(--font-body);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--text-main);
+            background: transparent;
+            color: var(--text-main);
+            transition: all 0.4s var(--easing);
+            position: relative;
+            font-size: 0.85rem;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--text-main);
+            transform: translateY(100%);
+            transition: transform 0.4s var(--easing);
+            z-index: -1;
+        }
+
+        .btn:hover {
+            color: var(--text-inverse);
+            border-color: var(--text-main);
+        }
+
+        .btn:hover::before {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-primary::before {
+            background: var(--primary);
+        }
+
+        /* --- ANIMATIONS --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1s var(--easing), transform 1s var(--easing);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--border-width) solid var(--border-color);
+            padding: 1.5rem 0;
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-box {
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .nav-links a {
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background: var(--primary);
+            transition: width 0.3s var(--easing);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: var(--border-width) solid var(--border-color);
+            position: relative;
+            padding-top: 80px;
+        }
+
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hero-content {
+            padding: 0 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-label {
+            font-family: var(--font-body);
+            color: var(--primary);
+            margin-bottom: 2rem;
+            display: inline-block;
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(3.5rem, 9vw, 8rem);
+            line-height: 0.9;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 3rem;
+            letter-spacing: -0.04em;
+            color: var(--text-main);
+        }
+        
+        .hero p {
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin-bottom: 4rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* --- GRID LAYOUT (Spotlight Effect) --- */
+        .grid-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            border-bottom: var(--border-width) solid var(--border-color);
+        }
+
+        .grid-item {
+            padding: 6rem 3rem;
+            border-right: var(--border-width) solid var(--border-color);
+            border-bottom: var(--border-width) solid var(--border-color); /* For mobile responsiveness */
+            position: relative;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            background: var(--bg-body);
+            transition: transform 0.3s;
+        }
+
+        /* Spotlight Effect gradient */
+        .grid-item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(
+                800px circle at var(--mouse-x) var(--mouse-y), 
+                rgba(255, 255, 255, 0.06),
+                transparent 40%
+            );
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .grid-item:hover::before {
+            opacity: 1;
+        }
+
+        .grid-item:nth-child(3n) { border-right: none; }
+
+        .grid-item h3 {
+            font-size: 2.5rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .grid-number {
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: auto;
+            display: block;
+        }
+
+        .grid-desc {
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            max-width: 90%;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* --- SPLIT SECTION --- */
+        .split-section {
+            display: flex;
+            border-bottom: var(--border-width) solid var(--border-color);
+            min-height: 80vh;
+        }
+
+        .split-half {
+            flex: 1;
+            padding: 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: var(--border-width) solid var(--border-color);
+        }
+
+        .split-half:last-child { border-right: none; }
+
+        .visual-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: #0f0f0f;
+            overflow: hidden;
+        }
+
+        /* Animated Geometric Shape */
+        .geo-shape {
+            width: 300px;
+            height: 300px;
+            border: 2px solid var(--primary);
+            position: relative;
+            animation: rotate 20s linear infinite;
+        }
+
+        .geo-shape::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 1px solid var(--text-muted);
+            border-radius: 50%;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .feature-title {
+            font-size: 4rem;
+            line-height: 1;
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .feature-text {
+            font-family: var(--font-body);
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            max-width: 400px;
+        }
+
+        .stats-display {
+            font-size: 10rem;
+            font-weight: 700;
+            line-height: 0.8;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--text-main);
+            position: relative;
+        }
+        
+        .stats-display span {
+            font-size: 2rem;
+            color: var(--primary);
+            -webkit-text-stroke: 0;
+            position: absolute;
+            top: 0;
+            right: -2rem;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            padding: 6rem 2rem;
+            background: var(--bg-body);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer h4 {
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        
+        .footer-logo {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .footer-links li { margin-bottom: 1rem; }
+        
+        .footer-links a {
+            font-size: 1.1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer-links a::before {
+            content: '>';
+            position: absolute;
+            left: -20px;
+            opacity: 0;
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+        
+        .footer-links a:hover { color: var(--primary); transform: translateX(10px); }
+        .footer-links a:hover::before { opacity: 1; left: -15px; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            .grid-section { grid-template-columns: 1fr; }
+            .grid-item { border-right: none; }
+            .split-section { flex-direction: column; }
+            .split-half { border-right: none; border-bottom: var(--border-width) solid var(--border-color); padding: 3rem 2rem; }
+            .hero h1 { font-size: 4rem; }
+            .cursor-dot, .cursor-outline { display: none; } /* Hide custom cursor on touch/tablets */
+            * { cursor: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor Elements -->
+    <div class="cursor-dot" data-cursor-dot></div>
+    <div class="cursor-outline" data-cursor-outline></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container nav-inner">
+            <a href="#" class="logo hover-trigger">
+                <div class="logo-box"></div>
+                <span class="scramble-text">HORIZON</span>
+            </a>
+            <div class="nav-links">
+                <a href="#services" class="hover-trigger">Index</a>
+                <a href="#work" class="hover-trigger">Cases</a>
+                <a href="#studio" class="hover-trigger">Studio</a>
+                <a href="#contact" class="hover-trigger" style="color: var(--primary);">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="grid-bg"></div>
+        <div class="hero-content">
+            <div class="hero-label reveal">System v2.0 Online</div>
+            <h1 class="reveal">
+                Digital<br>
+                <span class="scramble-text" style="color: var(--primary);">Infrastructure</span><br>
+                Architects
+            </h1>
+            <p class="reveal">
+                We reject templates. We build high-performance web systems using rigorous engineering and neo-brutalist aesthetics.
+            </p>
+            <div class="reveal">
+                <a href="#contact" class="btn btn-primary hover-trigger">Initialize Project</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- GRID SERVICES -->
+    <section class="grid-section" id="services">
+        <div class="grid-item reveal hover-trigger">
+            <span class="grid-number scramble-text">01 // STRATEGY</span>
+            <h3>Reductionist<br>Design</h3>
+            <p class="grid-desc">We strip away the noise. By focusing on typography, grid, and space, we ensure your message is the only thing that matters.</p>
+        </div>
+        <div class="grid-item reveal hover-trigger">
+            <span class="grid-number scramble-text">02 // SYSTEM</span>
+            <h3>Modular<br>Architecture</h3>
+            <p class="grid-desc">Scalable component libraries. We don't just build pages; we build design systems that grow with your company.</p>
+        </div>
+        <div class="grid-item reveal hover-trigger">
+            <span class="grid-number scramble-text">03 // PERFORMANCE</span>
+            <h3>Global<br>Scale</h3>
+            <p class="grid-desc">Zero bloatware. Optimized assets. Your platform is engineered to load instantly on any network, anywhere.</p>
+        </div>
+    </section>
+
+    <!-- SPLIT FEATURE 1 -->
+    <section class="split-section" id="work">
+        <div class="split-half reveal">
+            <div class="visual-container">
+                <div class="geo-shape"></div>
+            </div>
+        </div>
+        <div class="split-half reveal">
+            <h2 class="feature-title">Shape The<br>Future</h2>
+            <p class="feature-text">
+                The modern web is cluttered with heavy libraries and slow load times. We return to the metal. Semantic HTML5, CSS Grid, and Vanilla JS.
+            </p>
+            <div>
+                <a href="#" class="btn hover-trigger">Read Manifesto</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SPLIT FEATURE 2 -->
+    <section class="split-section" style="flex-direction: row-reverse;">
+        <div class="split-half reveal">
+            <div class="visual-container" style="background: #111;">
+                <div class="stats-display">
+                    100<span>%</span>
+                </div>
+            </div>
+        </div>
+        <div class="split-half reveal">
+            <h2 class="feature-title">Pure<br>Efficiency</h2>
+            <p class="feature-text">
+                Speed is not just a metric; it's a user experience. We optimize every line of code to achieve perfect Lighthouse scores.
+            </p>
+            <ul style="font-family: var(--font-body); color: var(--text-muted); margin-bottom: 2rem;">
+                <li>[+] Core Web Vitals Optimized</li>
+                <li>[+] Accessible (WCAG 2.1 AA)</li>
+                <li>[+] SEO Structured Data</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer" id="contact">
+        <div class="footer-grid">
+            <div>
+                <span class="footer-logo">HZN.</span>
+                <p style="font-family: var(--font-body); font-size: 0.85rem; color: var(--text-muted);">
+                    Delhi , India<br>
+                    EST. 2026 <br><br>
+                    <span style="color: var(--primary);">●</span> SYSTEM STATUS: OPERATIONAL
+                </p>
+            </div>
+            <div>
+                <h4>Directory</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="hover-trigger">Index</a></li>
+                    <li><a href="#" class="hover-trigger">Projects</a></li>
+                    <li><a href="#" class="hover-trigger">Log</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Connect</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="hover-trigger">Twitter / X</a></li>
+                    <li><a href="#" class="hover-trigger">Instagram</a></li>
+                    <li><a href="#" class="hover-trigger">GitHub</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        /**
+         * 1. Custom Cursor Logic
+         */
+        const cursorDot = document.querySelector('[data-cursor-dot]');
+        const cursorOutline = document.querySelector('[data-cursor-outline]');
+        const hoverTriggers = document.querySelectorAll('.hover-trigger');
+
+        window.addEventListener('mousemove', function(e) {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            // Dot follows immediately
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            // Outline follows with slight delay (handled by CSS transition if keyframes used, 
+            // but for smooth JS trailing we use animate)
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // Add hover effect class to body when hovering interactive elements
+        hoverTriggers.forEach(trigger => {
+            trigger.addEventListener('mouseenter', () => {
+                document.body.classList.add('hovering');
+            });
+            trigger.addEventListener('mouseleave', () => {
+                document.body.classList.remove('hovering');
+            });
+        });
+
+        /**
+         * 2. Hacker Text Scramble Effect
+         */
+        class TextScramble {
+            constructor(el) {
+                this.el = el;
+                this.chars = '!<>-_\\/[]{}—=+*^?#________';
+                this.update = this.update.bind(this);
+            }
+            setText(newText) {
+                const oldText = this.el.innerText;
+                const length = Math.max(oldText.length, newText.length);
+                const promise = new Promise((resolve) => this.resolve = resolve);
+                this.queue = [];
+                for (let i = 0; i < length; i++) {
+                    const from = oldText[i] || '';
+                    const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * 40);
+                    const end = start + Math.floor(Math.random() * 40);
+                    this.queue.push({ from, to, start, end });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+                return promise;
+            }
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span class="dud">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                this.el.innerHTML = output;
+                if (complete === this.queue.length) {
+                    this.resolve();
+                } else {
+                    this.frameRequest = requestAnimationFrame(this.update);
+                    this.frame++;
+                }
+            }
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
+        }
+
+        const phrases = document.querySelectorAll('.scramble-text');
+        phrases.forEach(el => {
+            const fx = new TextScramble(el);
+            const originalText = el.innerText;
+            
+            el.addEventListener('mouseenter', () => {
+                fx.setText(originalText);
+            });
+        });
+
+        /**
+         * 3. Spotlight Grid Effect
+         */
+        document.querySelectorAll('.grid-item').forEach(item => {
+            item.addEventListener('mousemove', (e) => {
+                const rect = item.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                item.style.setProperty('--mouse-x', `${x}px`);
+                item.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        /**
+         * 4. Intersection Observer for Scroll Animations
+         */
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
